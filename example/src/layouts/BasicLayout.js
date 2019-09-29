@@ -46,12 +46,6 @@ export default class BasicLayout extends Component {
               col={{ span: 10 }}>
               <Select>
                 {this.renderOption(list||[])}
-                {/* <Select.Option value='WCS'>
-                  WCS
-                          </Select.Option>
-                <Select.Option value='WMS'>
-                  WMS
-                          </Select.Option> */}
               </Select>
             </DynamicFormCol>
             <DynamicFormCol
@@ -76,7 +70,6 @@ export default class BasicLayout extends Component {
                 }
               }}
             >
-
             </DynamicFormCol>
           </DynamicForm>
         </Card>
