@@ -36,11 +36,11 @@ export default class BasicLayout extends Component {
   }
   render() {
     const { list } = this.state
-    debugger
+    const value=[{name:'12',value:12}]
     return (
       <div>
         <Card>
-          <DynamicForm>
+          <DynamicForm value={value} onChange={(value)=>{console.log(value)}}>
             <DynamicFormCol
               field='name'
               col={{ span: 10 }}>

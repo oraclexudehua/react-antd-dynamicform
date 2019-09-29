@@ -1,6 +1,6 @@
 {
   "name": "react-antd-dynamicform",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Dynamic form decoration component based on antd modification (the project scaffold is modified by ant-design-pro-layout)",
   "files": [
     "/lib",

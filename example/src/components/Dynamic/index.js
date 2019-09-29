@@ -69,12 +69,13 @@ export default class DynamicForm extends Component {
   };
 
   transForm = value => {
-    const result = { keys: [] };
+    const result = {  };
     const { fields } = this.state;
     for (let j = 0; j < fields.length; j += 1) {
       const obj = fields[j];
       result[obj] = [];
     }
+    const resultKeys=[]
     for (let index = 0; index < value.length; index += 1) {
       const element = value[index];
       const keys = Object.keys(result);
@@ -82,8 +83,9 @@ export default class DynamicForm extends Component {
         const key = keys[index];
         result[key].push(element[key]);
       }
-      result.keys.push(index);
+      resultKeys.push(index);
     }
+    result.keys=resultKeys
     return result;
   };
 
