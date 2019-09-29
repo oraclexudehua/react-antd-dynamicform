@@ -1,19 +1,22 @@
 import React, { Component } from 'react';
 import { Form, Col, Row, Button } from 'antd';
 
+
 @Form.create({
   onValuesChange(props, _, allValues) {
     const resultValue = [];
     const resultKey = Object.keys(allValues);
-    if (allValues[resultKey[0]] != null) {
-      for (let index = 0; index < allValues[resultKey[0]].length; index += 1) {
-        const o = {};
-        for (let n = 0; n < resultKey.length; n += 1) {
-          const a = resultKey[n];
-          o[a] = allValues[a][index];
+    const keys = allValues.keys
+    for (let index = 0; index < keys.length; index += 1) {
+      const element = keys[index];
+      const o = {};
+      for (let n = 0; n < resultKey.length; n += 1) {
+        const a = resultKey[n];
+        if (a !== 'keys') {
+          o[a] = allValues[a][element];
         }
-        resultValue.push(o);
       }
+      resultValue.push(o);
     }
     if (props.onChange) {
       props.onChange(resultValue || {});
@@ -26,6 +29,7 @@ export default class DynamicForm extends Component {
       keys: [],
     },
     fields: [],
+    id: 0
   };
 
   UNSAFE_componentWillMount() {
@@ -37,6 +41,7 @@ export default class DynamicForm extends Component {
     if (value != null) {
       const newValue = this.transForm(value);
       this.setState({
+        id: value.length || 0,
         result: newValue,
       });
     }
@@ -49,7 +54,6 @@ export default class DynamicForm extends Component {
       const result = [];
       for (let index = 0; index < children.length; index += 1) {
         const element = children[index];
-
         const {
           props: { field },
         } = element;
@@ -69,7 +73,7 @@ export default class DynamicForm extends Component {
   };
 
   transForm = value => {
-    const result = {  };
+    const result = {};
     const { fields } = this.state;
     for (let j = 0; j < fields.length; j += 1) {
       const obj = fields[j];
@@ -80,7 +84,7 @@ export default class DynamicForm extends Component {
       const element = value[index];
       const keys = Object.keys(result);
       for (let j = 0; j < keys.length; j += 1) {
-        const key = keys[index];
+        const key = keys[j];
         result[key].push(element[key]);
       }
       resultKeys.push(index);
@@ -90,27 +94,24 @@ export default class DynamicForm extends Component {
   };
 
   add = () => {
-    const { result } = this.state;
-    const { keys } = result;
+    const { form } = this.props;
+    const { id } = this.state
+    const keys = form.getFieldValue('keys');
+    const nextKeys = keys.concat(id + 1);
     this.setState({
-      result: {
-        ...result,
-        keys: [...keys, keys[0] != null ? keys[keys.length - 1] + 1 : 0],
-      },
+      id: id + 1
+    })
+    form.setFieldsValue({
+      keys: nextKeys,
     });
   };
 
   delete = k => {
-    const { result } = this.state;
-    const { keys } = result;
-    this.setState({
-      result: {
-        ...result,
-        keys: keys.filter(record => {
-          return record !== k;
-        }),
-      },
-    });
+    const { form } = this.props;
+    const keys = form.getFieldValue('keys');
+    form.setFieldsValue({
+      keys: keys.filter(key => key !== k),
+    })
   };
 
   dealValue = () => {
@@ -150,7 +151,7 @@ export default class DynamicForm extends Component {
           <Col {...col}>
             <Form.Item required={false}>
               {getFieldDecorator(`${field}[${k}]`, {
-                validateTrigger: ['onChange', 'onBlur'],
+                // validateTrigger: ['onChange', 'onBlur'],
                 initialValue: stateResult[`${field}`] ? stateResult[`${field}`][k] : null,
               })(newChild)}
             </Form.Item>
@@ -183,9 +184,9 @@ export default class DynamicForm extends Component {
 
   render() {
     const { result } = this.state;
-    const { keys } = result;
-    const { children } = this.props;
-
+    const { children, form: { getFieldDecorator, getFieldValue } } = this.props;
+    getFieldDecorator('keys', { initialValue: result.keys || [] })
+    const keys = getFieldValue('keys')
     const formItems = keys.map(k => (
       <Col key={k}>
         <Col span={22}>{this.renderNode(children, k)}</Col>
