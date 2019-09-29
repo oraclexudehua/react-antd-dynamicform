@@ -9,3 +9,6 @@ import DynamicForm from 'react-antd-dynamicform'
 const { DynamicFormCol } = DynamicForm
 
 详情参见 example>src>layouts>BasicLayouts
+
+
+### git:https://github.com/oraclexudehua/react-antd-dynamicform.git
