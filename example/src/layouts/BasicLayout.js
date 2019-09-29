@@ -36,7 +36,7 @@ export default class BasicLayout extends Component {
   }
   render() {
     const { list } = this.state
-    const value=[{name:'12',value:12}]
+    const value=[{name:'12',value:12},{name:'12',value:12},{name:'12',value:12},{name:'12',value:12}]
     return (
       <div>
         <Card>
