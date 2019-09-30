@@ -12,7 +12,7 @@ import { Form, Col, Row, Button } from 'antd';
       const o = {};
       for (let n = 0; n < resultKey.length; n += 1) {
         const a = resultKey[n];
-        if(a!='keys'){
+        if (a != 'keys') {
           o[a] = allValues[a][element];
         }
       }
@@ -132,6 +132,45 @@ export default class DynamicForm extends Component {
     return result;
   };
 
+
+
+
+  generateChild = (props, k) => {
+    const { result: stateResult } = this.state;
+    const {
+      form: { getFieldDecorator, getFieldsValue },
+    } = this.props;
+    const { col, renderChild, children, field, label } = props
+    let newChild = children;
+    if (renderChild) {
+      newChild = renderChild(this.generateValue(getFieldsValue(), k));
+    }
+    console.log(props)
+    const { props: { hidden } } = newChild
+    if (hidden) {
+      return (
+        <span>
+          {getFieldDecorator(`${field}[${k}]`, {
+            validateTrigger: ['onChange', 'onBlur'],
+            initialValue: stateResult[`${field}`] ? stateResult[`${field}`][k] : null,
+          })(newChild)}
+        </span>
+      );
+    } else {
+
+      return (
+        <Col {...col}>
+          <Form.Item required={false} label={label && k == 0 ? label : null} >
+            {getFieldDecorator(`${field}[${k}]`, {
+              validateTrigger: ['onChange', 'onBlur'],
+              initialValue: stateResult[`${field}`] ? stateResult[`${field}`][k] : null,
+            })(newChild)}
+          </Form.Item>
+        </Col>
+      );
+    }
+  }
+
   renderNode = (records, k) => {
     const result = [];
     const { result: stateResult } = this.state;
@@ -141,49 +180,28 @@ export default class DynamicForm extends Component {
     if (Array.isArray(records)) {
       for (let index = 0; index < records.length; index += 1) {
         const element = records[index];
-        const {
-          props: { col, renderChild, children, field },
-        } = element;
-        let newChild = children;
-        if (renderChild) {
-          newChild = renderChild(this.generateValue(getFieldsValue(), k));
-        }
-        result.push(
-          <Col {...col}>
-            <Form.Item required={false}>
-              {getFieldDecorator(`${field}[${k}]`, {
-                // validateTrigger: ['onChange', 'onBlur'],
-                initialValue: stateResult[`${field}`] ? stateResult[`${field}`][k] : null,
-              })(newChild)}
-            </Form.Item>
-          </Col>
-        );
+        result.push(this.generateChild(element.props, k))
       }
     } else {
-      // const element = records[index];
-      const {
-        props: { col, renderChild, children, field },
-      } = records;
-      let newChild = children;
-      if (renderChild) {
-        newChild = renderChild(this.generateValue(getFieldsValue(), k));
-      }
-      result.push(
-        <Col {...col}>
-          <Form.Item required={false}>
-            {getFieldDecorator(`${field}[${k}]`, {
-              validateTrigger: ['onChange', 'onBlur'],
-              initialValue: stateResult[`${field}`] ? stateResult[`${field}`][k] : null,
-            })(newChild)}
-          </Form.Item>
-        </Col>
-      );
+      result.push(this.generateChild(records.props, k))
     }
 
     return result;
   };
 
+  renderLabel = () => {
+    const { isRenderLabel } = this.props
+    if (isRenderLabel) {
+      const { children } = this.props
+
+
+    }
+    return null
+  }
+
+
   render() {
+    const { renderButton } = this.props
     const { result } = this.state;
     const { children, form: { getFieldDecorator, getFieldValue } } = this.props;
     getFieldDecorator('keys', { initialValue: result.keys || [] })
@@ -205,18 +223,31 @@ export default class DynamicForm extends Component {
     return (
       <div>
         <Row>
-          <Form>{formItems}</Form>
+          {this.renderLabel()}
         </Row>
         <Row>
-          <Button
-            style={{ width: '100%' }}
-            type="dashed"
-            onClick={() => {
-              this.add();
-            }}
-          >
-            添加
+          <Form
+          layout='horizontal'
+          >{formItems}</Form>
+        </Row>
+        <Row>
+          {
+            renderButton ?
+              renderButton(() => {
+                this.add()
+              })
+              :
+              <Button
+                style={{ width: '100%' }}
+                type="dashed"
+                onClick={() => {
+                  this.add();
+                }}
+              >
+                添加
           </Button>
+          }
+
         </Row>
       </div>
     );
